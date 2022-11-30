@@ -42,12 +42,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build && cp _redirects build/_redirects",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "stop": "lsof -t -i :5001 -i:5002 | xargs kill -9",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d build"
+    "build": "react-scripts build && cp _redirects build/_redirects"
   },
   "eslintConfig": {
     "extends": [
