@@ -42,10 +42,10 @@ workflows:
           version: '16.10'
           # If you are using yarn, change the line below from "npm" to "yarn"
           pkg-manager: npm
-      - build-and-push
+      - build-and-push:
+          requires:
+            - node/test
           filters:
-            requires:
-              - node/test
             branches:
               only:
                 - master
