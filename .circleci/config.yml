@@ -29,7 +29,13 @@ jobs:
       - run:
           command: |
             echo "Digest is: $(</tmp/digest.txt)"
-            
+  deploy:
+    executor: docker/docker
+    steps:
+      - add_ssh_keys: 
+          fingerprints:
+            - 
+      - run: ssh -oStrictHostKeyChecking=no -v circleci@138.197.149.107 './deploy.sh'
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
   sample: # This is the name of the workflow, feel free to change it to better match your workflow.
