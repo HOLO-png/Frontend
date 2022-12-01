@@ -10,7 +10,7 @@ orbs:
 jobs:
   build-and-push:
     environment:
-      DOCKER_IMAGE: anhlongwin1901/webbanhang:v2
+      DOCKER_IMAGE: anhlongwin1901/webbanhang01:v2
       DOCKER_TAG: latest
     executor: docker/docker
     steps:
