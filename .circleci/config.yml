@@ -17,7 +17,7 @@ jobs:
       - setup_remote_docker
       - checkout
       - docker/check:
-          docker-username: anhlongwin1901
+          docker-username: wwwlong91@gmail.com
           docker-password: anhlongwin1901
       - docker/build:
           image: $DOCKER_IMAGE
