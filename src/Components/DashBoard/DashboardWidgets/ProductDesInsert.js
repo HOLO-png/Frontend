@@ -25,7 +25,11 @@ import {
   updateDetailToProduct,
 } from "../../../Store/Reducer/productConfig";
 import { imageUpload } from "../../../utils/imageUpload";
-import { isEmptyObjectAll, newObjectId, numberWithCommas } from "../../../utils";
+import {
+  isEmptyObjectAll,
+  newObjectId,
+  numberWithCommas,
+} from "../../../utils";
 
 const clone = (obj) => Object.assign({}, obj);
 

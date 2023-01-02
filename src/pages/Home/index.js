@@ -19,7 +19,6 @@ import SriceShock from "../../Components/SriceShock";
 import CategorySelect from "../../Components/CategorySelect";
 
 import AOS from "aos";
-// import EvaluateWebs from "../../Components/EvaluateWebs";
 import {
   handleSetLoadingSkeleton,
   productsSelector,
@@ -145,7 +144,6 @@ export default function Home() {
                   description={item.description}
                   icon={item.icon}
                   key={index}
-                  // onClick={handleShowMessage}
                 />
               ))}
             </Grid>
@@ -278,7 +276,6 @@ export default function Home() {
                   );
                 })}
             </Grid>
-
             <Grid col={5} mdCol={2} smCol={1} gap={0}>
               {products_api.loading &&
                 skeletonProduct.map((item, index) => (
@@ -287,7 +284,6 @@ export default function Home() {
             </Grid>
           </div>
         </SectionBody>
-
         <Sidebar />
         <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
           <Col className="gutter-row" span={12} data-aos="fade-right">

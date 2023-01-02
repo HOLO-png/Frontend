@@ -2,15 +2,18 @@
 import React, { memo, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
-import { Badge, message, Rate, Tag, Tooltip } from "antd";
+import { Avatar, Badge, message, Rate, Tag, Tooltip } from "antd";
 import { DefaultImg } from "../../assets/fake-data/human";
 import {
+  convertPriceToToken,
   handleChangeProductPrice,
   isEmptyObjectAll,
   numberWithCommas,
 } from "../../utils";
 import { EyeOutlined } from "@ant-design/icons";
 import QuickViewModal from "./QuickViewModal";
+import { authSelector } from "../../Store/Reducer/authReducer";
+import { useSelector } from "react-redux";
 
 function ProductCart(props) {
   const {
@@ -30,10 +33,9 @@ function ProductCart(props) {
   } = props;
   let [showQuickView, setShowQuickView] = useState(false);
   let [productData, setProductData] = useState(null);
-
+  const { user } = useSelector(authSelector);
   const imgRef = useRef();
   var name_url = name.replace(/[^\w\s]/gi, "");
-
   useEffect(() => {
     const img = imgRef.current;
     const observer = new IntersectionObserver((entries) => {
@@ -99,20 +101,42 @@ function ProductCart(props) {
         </div>
 
         <Link to={`/product/${category}/${name_url}/${id}`}>
-          <div className="product-cart__image">
-            <img alt={name} style={{ width: img_width }} ref={imgRef} />
-          </div>
-          <h3 className="product-cart__name">{name}</h3>
-          <div className="product-cart-evaluate">
-            <Rate
-              disabled
-              value={star ? +star : 0}
-              style={{ marginTop: "12px" }}
-            />
-            <p className="product-cart-sold">đã bán {sold}</p>
+          <div
+            style={{
+              height: height,
+            }}
+          >
+            <div className="product-cart__image">
+              <img alt={name} style={{ width: img_width }} ref={imgRef} />
+            </div>
+            <h3 className="product-cart__name" style={{ height: "36px" }}>
+              {name}
+            </h3>
+            <div className="product-cart-evaluate">
+              <Rate
+                disabled
+                value={star ? +star : 0}
+                style={{ marginTop: "12px" }}
+              />
+              <p className="product-cart-sold">đã bán {sold}</p>
+            </div>
           </div>
           <div className="product-cart__price">
-            {numberWithCommas(price)} <sup> đ</sup>
+            {user?.addressWallet ? (
+              <>
+                {convertPriceToToken(price)}
+                <Avatar
+                  size={"small"}
+                  width="11%"
+                  src="https://pragmaticintegrator.files.wordpress.com/2017/10/ethereum-logo.png?w=848"
+                />
+              </>
+            ) : (
+              <>
+                {numberWithCommas(price)}
+                <sup> đ</sup>
+              </>
+            )}{" "}
             {handleChangeProductPrice(priceOld, price) ? (
               <Tag color="#ff4c4c">
                 -{" "}
@@ -126,7 +150,12 @@ function ProductCart(props) {
             )}
             {+priceOld ? (
               <div className="product-cart__price-old">
-                <del>{numberWithCommas(priceOld)} đ</del>
+                <del>
+                  {user?.addressWallet
+                    ? convertPriceToToken(priceOld)
+                    : numberWithCommas(priceOld)}{" "}
+                  đ
+                </del>
               </div>
             ) : (
               ""

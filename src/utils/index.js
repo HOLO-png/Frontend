@@ -49,7 +49,10 @@ export const getProducts = (count, products) => {
     return [];
   }
 };
-
+export const convertPriceToToken = (sumProduct) => {
+  const amountToken = sumProduct / process.env.REACT_APP_TOKEN_PRICE;
+  return amountToken.toFixed();
+};
 export const numberWithCommas = (num) =>
   num ? num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") : 0;
 

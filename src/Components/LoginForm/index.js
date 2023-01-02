@@ -35,7 +35,7 @@ function LoginForm(props) {
 
   const handleLoginSignup = (val) => {
     dispatch(setLoadingAction(true));
-    dispatch(fetchSignupAction({val, history}));
+    dispatch(fetchSignupAction({ val, history }));
     setTimeout(() => {
       dispatch(setLoadingAction(false));
     }, 500);
@@ -62,9 +62,10 @@ function LoginForm(props) {
   };
 
   const handleGgLogin = (response) => {
-    dispatch(setLoadingAction(true));
     const { tokenId } = response;
     if (tokenId) {
+      dispatch(setLoadingAction(true));
+
       dispatch(
         loginSocialAction({
           domant: "google",
@@ -115,8 +116,8 @@ function LoginForm(props) {
       <footer className="form__footer">
         <p>
           Shop điện tử Iphone <i className="fa fa-heart" /> của
-          <Link to="/"> Phạm Công Tuấn</Link> - Xin chân thành cảm ơn quý khách đã
-          ghé qua ạ
+          <Link to="/"> Phạm Công Tuấn</Link> - Xin chân thành cảm ơn quý khách
+          đã ghé qua ạ
         </p>
       </footer>
     </div>

@@ -43,6 +43,7 @@ function Signin({ handleFbLogin, handleGgLogin, onSubmit }) {
             clientId="355174219711-cisdj781jtsa2flfvgu86eii8b3knomq.apps.googleusercontent.com"
             buttonText="Login with Google"
             onSuccess={handleGgLogin}
+            onFailure={handleGgLogin}
             cookiePolicy={"single_host_origin"}
           />
         </div>
@@ -71,7 +72,10 @@ function Signin({ handleFbLogin, handleGgLogin, onSubmit }) {
           <Input.Password placeholder="Nhập mật khẩu" />
         </Form.Item>
         <Form.Item>
-          <Link to="/forgot-password" onClick={() => dispatch(resetIsForgetPassword(true))}>
+          <Link
+            to="/forgot-password"
+            onClick={() => dispatch(resetIsForgetPassword(true))}
+          >
             <p>Bạn quên mật khẩu</p>
           </Link>
         </Form.Item>

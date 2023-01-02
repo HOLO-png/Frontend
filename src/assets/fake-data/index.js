@@ -419,11 +419,6 @@ export const pay_method_img = [
       "https://sedberkdesign.com/wp-content/uploads/2020/06/kisspng-paypal-logo-brand-font-payment-paypal-logo-icon-paypal-icon-logo-png-and-vecto-5b7f273e45e8a9.9067728615350597742864.png",
   },
   {
-    title: "MoMo",
-    key: "Thanh toán Online",
-    image: "https://vmit.com.vn/wp-content/uploads/2021/02/logo-momo.png",
-  },
-  {
     title: "Metamask",
     key: "Thanh toán Online",
     image:

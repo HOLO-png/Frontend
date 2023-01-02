@@ -70,8 +70,10 @@ import {
   messageInfoToast,
   newObjectId,
 } from "../../../utils";
-import { ethSelector } from "../../../Store/Reducer/ethReducer";
-import useDeployContractToTruffle from "../../../Hooks";
+import {
+  ethSelector,
+  handleCreateProductToDB,
+} from "../../../Store/Reducer/ethReducer";
 import Web3 from "web3";
 
 function DashboardWidgets({ url }) {
@@ -81,6 +83,7 @@ function DashboardWidgets({ url }) {
   const paginateRef = useRef(null);
   const mobile_api = useSelector(mobilesSelector);
   const laptop_api = useSelector(laptopsSelector);
+  const { web3, accounts, contracts } = useSelector(ethSelector);
   const tablet_api = useSelector(tabletsSelector);
   const input_feild = useSelector(InputFieldsSelector);
   const select_field = useSelector(SelectFieldsSelector);
@@ -102,7 +105,6 @@ function DashboardWidgets({ url }) {
   );
 
   const ether = useSelector(ethSelector);
-  useDeployContractToTruffle();
 
   const [varation, setVaration] = useState({
     count: 0,
@@ -343,37 +345,21 @@ function DashboardWidgets({ url }) {
         })
       );
     } else {
-      if (!ether.contracts) {
-        message.error("Không thể kết nối tới Metamask");
-        return null;
-      }
-      const {
-        contracts: { myMarketplaceInstance },
-        accounts,
-      } = ether;
       dispatch(setLoadingAction(true));
-
-      if (myMarketplaceInstance) {
-        try {
-          myMarketplaceInstance?.methods
-            .createProduct(
-              "iphone 12 pro",
-              Web3.utils.toWei("1", "Ether"),
-              tokenEth
-            )
-            .send({ from: accounts[0] })
-            .once("receipt", (receipt) => {
-              console.log("error payment", receipt);
-            });
-          postProduct(result);
-          dispatch(setLoadingAction(false));
-        } catch (err) {
-          console.log("create products err:", err);
-          dispatch(setLoadingAction(false));
-        }
-      }
+      dispatch(
+        handleCreateProductToDB({
+          web3,
+          price: 12,
+          contracts,
+          accounts,
+          postProduct: () => {
+            postProduct(result);
+            handleResetProductConfig();
+          },
+        })
+      );
+      dispatch(setLoadingAction(false));
     }
-    handleResetProductConfig();
   };
 
   const handleSetImageField = (img) => {

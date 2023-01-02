@@ -1,9 +1,10 @@
-import { BrowserRouter, Switch, useHistory } from "react-router-dom";
+import { BrowserRouter, Switch } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { DASHBOARD_MAIN, LOGIN_ROUTES, MAIN_ROUTES } from "../../constans";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Layout from "../../Common/Layout";
+import { useHistory } from "react-router";
 import Footer from "../../Components/Footer";
 import Header from "../../Components/Header";
 import LoginLayout from "../../Common/LoginLayout";
@@ -25,16 +26,19 @@ import { css } from "styled-components";
 import {
   authSelector,
   getUserByToken,
+  handleLogout,
   signingSuccess,
 } from "../../Store/Reducer/authReducer";
 import {
   cartSelector,
   getOrCreateCartToUserApi,
+  handleResetCartUser,
 } from "../../Store/Reducer/cartReducer";
 import axios from "axios";
 import jwt_decode from "jwt-decode";
 import ScrollToTop from "../../Components/ScrollToTop";
 import { BackTop, message, Tooltip } from "antd";
+import { getInitContracts } from "../../Store/Reducer/ethReducer";
 
 const override = css`
   display: block;
@@ -105,17 +109,46 @@ function App() {
   const auth = useSelector(authSelector);
   const cart = useSelector(cartSelector);
 
-  const user = localStorage.getItem("user");
+  const user = JSON.parse(localStorage.getItem("user"));
   const token = localStorage.getItem("token");
 
   const dispatch = useDispatch();
   const [confirmOpen, setConfirmOpen] = useState(true);
-
   const axiosJWT = createAxiosJWT({
     tokenAuth: auth.tokenAuth,
     history,
     dispatch,
   });
+
+  useEffect(() => {
+    const tryInit = async () => {
+      try {
+        const myToken = require("../../contracts/MyToken.json");
+        const myTokenSale = require("../../contracts/MyTokenSale.json");
+        const kycContract = require("../../contracts/KycContract.json");
+        const marketPlace = require("../../contracts/Marketplace.json");
+
+        const artifact = { myToken, myTokenSale, kycContract, marketPlace };
+        dispatch(getInitContracts(artifact));
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    tryInit();
+  }, [dispatch, user?.addressWallet]);
+
+  useEffect(() => {
+    window.ethereum.on("accountsChanged", function (accounts) {
+      console.log(history);
+      dispatch(handleResetCartUser());
+      dispatch(setLoadingAction(true));
+      dispatch(handleLogout(history));
+      setTimeout(() => {
+        dispatch(setLoadingAction(false));
+      }, 500);
+    });
+  }, [dispatch, history]);
 
   useEffect(() => {
     if (user && token) {
@@ -208,7 +241,6 @@ function App() {
   const renderMain = () => (
     <>
       <div className="container">
-      HoangLong
         <Header
           searchItem={searchItem}
           insertSearchItemUser={insertSearchItemUser}

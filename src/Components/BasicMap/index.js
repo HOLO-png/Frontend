@@ -42,7 +42,6 @@ export default function LocationMap({ setLngLat, lngLat }) {
       lat: lngLat.lat,
     },
   ]);
-
   const [selected, setSelected] = useState(null);
 
   const onMapClick = React.useCallback((e) => {

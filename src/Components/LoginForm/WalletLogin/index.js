@@ -2,38 +2,50 @@
 import React, { useState } from "react";
 import { Avatar, Button, List, Modal } from "antd";
 import Icon from "@ant-design/icons";
-import { getWeb3 } from "../../../ethereumService/getWeb3";
 import { metaMaskLink } from "../../../assets/fake-data";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setLoadingAction } from "../../../Store/Reducer/loadingReducer";
 import { loginSocialAction } from "../../../Store/Reducer/authReducer";
+import { ethSelector } from "../../../Store/Reducer/ethReducer";
+import { toast } from "react-toastify";
 
 function WalletLoginConnect(props) {
   const [isOpen, setIsOpen] = useState(false);
   const dispatch = useDispatch();
+  const { accounts, contracts, contractAddress, web3 } =
+    useSelector(ethSelector);
 
   const connectWalletHandler = async () => {
-    const web3 = await getWeb3();
     if (web3) {
-      dispatch(setLoadingAction(true));
-      const account = await web3.eth.requestAccounts();
-      if (account[0]) {
-        const body = {
-          name: "Unnamed",
-          email: `${account[0]}-email`,
-          phoneNumber: "unPhone",
-          loginDomain: "cryptoWallet",
-          userID: account[0],
-          addressWallet: account[0],
-        };
-        dispatch(
-          loginSocialAction({
-            domant: "wallet",
-            data: body,
-          })
-        );
-        dispatch(setLoadingAction(false));
+      if (contracts && accounts && contractAddress?.kycAddress) {
+        if (accounts[0]) {
+          dispatch(setLoadingAction(true));
+          try {
+            await contracts.kycInstance.methods
+              .setKycCompleted(accounts[0])
+              .send({ from: accounts[0] });
+            const body = {
+              name: "Unnamed",
+              email: `${accounts[0]}-email`,
+              phoneNumber: "unPhone",
+              loginDomain: "cryptoWallet",
+              userID: accounts[0],
+              addressWallet: accounts[0],
+            };
+            dispatch(
+              loginSocialAction({
+                domant: "wallet",
+                data: body,
+              })
+            );
+          } catch (error) {
+            console.log(error);
+          }
+          dispatch(setLoadingAction(false));
+        }
       }
+    } else {
+      toast.error("Bạn chưa có ví điện tử");
     }
   };
 

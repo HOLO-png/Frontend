@@ -1,16 +1,18 @@
 import { Button, Form } from "antd";
-import React, { useEffect, useRef, useState } from "react";
+import React, { memo, useCallback, useEffect, useRef, useState } from "react";
 import { search_item } from "../../../assets/fake-data";
 import { DownOutlined, UpOutlined } from "@ant-design/icons";
 import CategorySearch from "./CategorySearch";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { getSearchItemUserApi } from "../../../Store/Reducer/searchItem";
 import { openNotification } from "../../../utils";
+import { useKeyDown } from "../../../Hooks";
 
-export default function Search(props) {
+function Search(props) {
   let arrSearchItem = [];
   const { searchItem, insertSearchItemUser, removeSearchItem } = props;
+  const history = useHistory();
   const searchRef = useRef(null);
   const dropdownRef = useRef(null);
   const inputRef = useRef(null);
@@ -27,12 +29,18 @@ export default function Search(props) {
     }
   }, [searchItem]);
 
+  useKeyDown("Enter", (e) => {
+    if (inputSearch) {
+      history.push(`/search/${inputSearch}`);
+    }
+  });
+
   const handleHeightSearchItem = (items) => {
     const arr_items = items.slice(2);
     return arr_items.length * 50;
   };
 
-  const setActiveClass = () => {
+  const setActiveClass = useCallback(() => {
     if (inputSearch) {
       insertSearchItemUser(inputSearch);
     }
@@ -43,7 +51,7 @@ export default function Search(props) {
       searchRef?.current.classList.add("active");
       dropdownRef?.current.classList.remove("hidden");
     }
-  };
+  }, [dispatch, inputSearch, insertSearchItemUser, searchItem]);
 
   const removeActiveClass = () => {
     if (searchRef.current) {
@@ -203,15 +211,13 @@ export default function Search(props) {
       : "";
   };
 
-  const handleChangeInputSearch = (e) => {
-    setInputSearch(e.target.value);
-  };
-
   const renderUISearchSame = () => {
     if (inputSearch) {
-      arrSearchItem = searchAll.filter((text) => {
-        return text.content.toLowerCase().indexOf(inputSearch) !== -1;
-      });
+      if (searchAll.length) {
+        arrSearchItem = searchAll.filter((text) => {
+          return text.content?.toLowerCase().indexOf(inputSearch) !== -1;
+        });
+      }
     }
     if (arrSearchItem.length) {
       return renderUISearch(arrSearchItem);
@@ -240,22 +246,18 @@ export default function Search(props) {
             <div
               className="header__menu__item__btn-search"
               onClick={() => setActiveClass()}
-              // style={{ color: themeItem.text_color }}
             >
               <i className="fal fa-search" />
             </div>
           </Link>
           <Form>
-            <div
-              className="header__menu__item__input-search"
-              // style={{ color: themeItem.text_color }}
-            >
+            <div className="header__menu__item__input-search">
               <input
                 type="text"
                 placeholder="tìm kiếm sản phẩm ..."
                 value={inputSearch}
                 ref={inputRef}
-                onChange={(e) => handleChangeInputSearch(e)}
+                onChange={(e) => setInputSearch(e.target.value)}
               />
             </div>
           </Form>
@@ -306,3 +308,5 @@ export default function Search(props) {
     </div>
   );
 }
+
+export default memo(Search);

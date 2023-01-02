@@ -8,6 +8,7 @@ import { setLoadingAction } from "../../../Store/Reducer/loadingReducer";
 import { handleResetCartUser } from "../../../Store/Reducer/cartReducer";
 import { Avatar } from "antd";
 import { humanImg } from "../../../assets/fake-data/human";
+import BuyTokenModal from "../../BuyTokenModal";
 
 function User({ user }) {
   const userDrawerRef = useRef(null);
@@ -50,9 +51,12 @@ function User({ user }) {
           {user ? (
             <Link to="/user/order">
               <Avatar
-                src={user.profilePicture || humanImg}
+                src={user?.profilePicture || humanImg}
                 alt={user.username}
                 size={30}
+                onError={(e) => {
+                  console.log(e);
+                }}
               />
             </Link>
           ) : (
@@ -93,12 +97,15 @@ function User({ user }) {
               </div>
             </Link>
             {user.addressWallet && (
-              <div className="header__menu__item__user-drawer-accout">
-                <i className="fad fa-wallet"></i>
-                <span className="display-name-user" style={{ marginLeft: 5 }}>
-                  {user.addressWallet}
-                </span>
-              </div>
+              <>
+                <div className="header__menu__item__user-drawer-accout">
+                  <i className="fad fa-wallet"></i>
+                  <span className="display-name-user">
+                    {user.addressWallet}
+                  </span>
+                </div>
+                <BuyTokenModal />
+              </>
             )}
             <Link to="/user/order">
               <div className="header__menu__item__user-drawer-accout">

@@ -38,10 +38,8 @@ import {
   handleAddOrder,
   orderSelector,
 } from "../../Store/Reducer/orderReducer";
-import { isEmptyObject, isStringEmptyArray } from "../../utils";
-import { ethSelector } from "../../Store/Reducer/ethReducer";
-import Web3 from "web3";
-import useDeployContractToTruffle from "../../Hooks";
+import { isEmptyObject } from "../../utils";
+import { ethSelector, handleBuyItem } from "../../Store/Reducer/ethReducer";
 
 function Pay({ axiosJWT }) {
   const dispatch = useDispatch();
@@ -58,6 +56,8 @@ function Pay({ axiosJWT }) {
   const loading = useSelector(loadingSelector);
   const payment = useSelector(paymentSelector);
   const orderSlt = useSelector(orderSelector);
+  const { accounts, web3, contracts, contractAddress, userTokens } =
+    useSelector(ethSelector);
   const ether = useSelector(ethSelector);
   const [sumProduct, setSumProduct] = useState("");
   const [products, setProducts] = useState([]);
@@ -102,8 +102,6 @@ function Pay({ axiosJWT }) {
   const { servicePackage, leadTime, feeServiceChange } = address_api;
 
   const { userAddress, userAddressAdmin } = userAddressSlt;
-
-  useDeployContractToTruffle();
 
   useEffect(() => {
     if (auth.tokenAuth && auth.user) {
@@ -508,56 +506,24 @@ function Pay({ axiosJWT }) {
                   );
                   break;
                 case "Metamask":
-                  if (!ether.contracts) {
-                    Message.error("Không thể kết nối tới Metamask");
-                    return null;
-                  }
-
-                  const productsTokenEth = products.map(
-                    (product) => product.tokenEth
-                  );
-                  const {
-                    contracts: { myMarketplaceInstance },
-                    accounts,
-                  } = ether;
-                  if (
-                    productsTokenEth.length &&
-                    !isStringEmptyArray(productsTokenEth)
-                  ) {
-                    try {
-                      const total = sumProduct + feeService || 0;
-                      const result = await myMarketplaceInstance.methods
-                        .createOrder(
-                          auth?.user?._id,
-                          total,
-                          accounts[0],
-                          "0xDF89fD5A13e9d82AFA12a4Fd478EB008a33072b0"
-                        )
-                        .send({
-                          from: accounts[0],
-                          value: Web3.utils.toWei("1", "ether"),
-                          gas: 6000000,
-                        })
-                        .once("receipt", (confirmationNumber, receipt) => {
-                          console.log("error payment", receipt);
-                          Message.error(
-                            "Giao dịch thất bại, bạn sẽ được hoàn trả lại phí giao dịch"
-                          );
-                        });
-                      handleCreateOrder();
-                    } catch (err) {
-                      Message.error(
-                        "This contract object doesn't have address set yet, please set an address first."
-                      );
-                      dispatch(setLoadingAction(false));
-                      console.log("err:", err);
-                    }
-                  } else {
-                    Message.error(
-                      "Bạn chưa thể thanh toán bằng phương thức này!"
+                  if (userTokens > 0) {
+                    const amountToken =
+                      sumProduct / process.env.REACT_APP_TOKEN_PRICE;
+                    dispatch(
+                      handleBuyItem({
+                        accounts,
+                        web3,
+                        price: +amountToken.toFixed(),
+                        contracts,
+                        contractAddress,
+                        handleCreateOrder: () => {
+                          handleCreateOrder();
+                        },
+                      })
                     );
+                  } else {
+                    Message.warn("Số dư token không đủ để mua hàng");
                   }
-
                   break;
                 default:
               }
@@ -666,6 +632,7 @@ function Pay({ axiosJWT }) {
           handleShowPayTable={handleShowPayTable}
           payMethodActive={payMethodActive}
           leadTime={leadTime}
+          feeService={feeService}
         />
         <PayMethod
           isShowTablePay={isShowTablePay}

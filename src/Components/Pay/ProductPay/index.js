@@ -1,9 +1,21 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { Badge, Button, Col, Empty, Modal, Row, Skeleton, Tooltip } from "antd";
+import {
+  Avatar,
+  Badge,
+  Button,
+  Col,
+  Empty,
+  Modal,
+  Row,
+  Skeleton,
+  Tooltip,
+} from "antd";
 import { Input } from "antd";
 import Product from "./Product";
-import { numberWithCommas } from "../../../utils";
+import { convertPriceToToken, numberWithCommas } from "../../../utils";
+import { useSelector } from "react-redux";
+import { authSelector } from "../../../Store/Reducer/authReducer";
 
 const { TextArea } = Input;
 
@@ -111,6 +123,8 @@ function ProductsPay(props) {
     servicePackage,
     setServiceTypeId,
   } = props;
+  const { user } = useSelector(authSelector);
+
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [active, setActive] = useState(null);
   const [time, setTime] = useState("");
@@ -248,7 +262,21 @@ function ProductsPay(props) {
               <div className="contact-shop__message-price">
                 <div className="contact-shop__message">Đơn Vị Vận Chuyển</div>
                 <div className="contact-shop__price">
-                  {numberWithCommas(feeService)}₫
+                  {user?.addressWallet ? (
+                    <>
+                      {convertPriceToToken(feeService)}
+                      <Avatar
+                        size={"small"}
+                        width="11%"
+                        src="https://pragmaticintegrator.files.wordpress.com/2017/10/ethereum-logo.png?w=848"
+                      />
+                    </>
+                  ) : (
+                    <>
+                      {numberWithCommas(feeService)}
+                      <sup> đ</sup>
+                    </>
+                  )}
                 </div>
               </div>
               <div className="contact-shop__message-price">
@@ -312,7 +340,21 @@ function ProductsPay(props) {
                                 <h2 className="card__title">
                                   Tổng chi phí:
                                   <p className="payment__price">
-                                    {numberWithCommas(item.data?.total)}₫
+                                    {user?.addressWallet ? (
+                                      <>
+                                        {convertPriceToToken(item.data?.total)}
+                                        <Avatar
+                                          size={"small"}
+                                          width="11%"
+                                          src="https://pragmaticintegrator.files.wordpress.com/2017/10/ethereum-logo.png?w=848"
+                                        />
+                                      </>
+                                    ) : (
+                                      <>
+                                        {numberWithCommas(item.data?.total)}
+                                        <sup> đ</sup>
+                                      </>
+                                    )}
                                   </p>
                                 </h2>
                                 <p className="card__apply">

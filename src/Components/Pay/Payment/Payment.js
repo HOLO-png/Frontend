@@ -1,8 +1,10 @@
 import React from "react";
 import styled from "styled-components";
-import { Button, Col, Row, Skeleton } from "antd";
+import { Avatar, Button, Col, Row, Skeleton } from "antd";
 import MethodPay from "./MethodPay";
-import { numberWithCommas } from "../../../utils";
+import { convertPriceToToken, numberWithCommas } from "../../../utils";
+import { useSelector } from "react-redux";
+import { authSelector } from "../../../Store/Reducer/authReducer";
 
 const PaymentComponent = styled.div`
   height: auto;
@@ -51,8 +53,9 @@ function Payment(props) {
     handleMethodPayProduct,
     handleShowPayTable,
     payMethodActive,
+    feeService = 0,
   } = props;
-
+  const { user } = useSelector(authSelector);
   return (
     <PaymentComponent>
       <div className="payment">
@@ -88,17 +91,69 @@ function Payment(props) {
               <div className="payment__total-price-product">
                 <p className="payment__title">Tổng tiền hàng</p>
                 <p className="payment__price">
-                  ₫{sumProduct ? numberWithCommas(sumProduct) : 0}
+                  {sumProduct ? (
+                    user?.addressWallet ? (
+                      <>
+                        {convertPriceToToken(sumProduct)}
+                        <Avatar
+                          size={"small"}
+                          width="11%"
+                          src="https://pragmaticintegrator.files.wordpress.com/2017/10/ethereum-logo.png?w=848"
+                        />
+                      </>
+                    ) : (
+                      <>
+                        {numberWithCommas(sumProduct)}
+                        <sup> đ</sup>
+                      </>
+                    )
+                  ) : (
+                    0
+                  )}
                 </p>
               </div>
               <div className="payment__total-price-product">
                 <p className="payment__title">Phí vận chuyển</p>
-                <p className="payment__price">₫32.700</p>
+                <p className="payment__price">
+                  {user?.addressWallet ? (
+                    <>
+                      {convertPriceToToken(feeService)}
+                      <Avatar
+                        size={"small"}
+                        width="11%"
+                        src="https://pragmaticintegrator.files.wordpress.com/2017/10/ethereum-logo.png?w=848"
+                      />
+                    </>
+                  ) : (
+                    <>
+                      {numberWithCommas(feeService)}
+                      <sup> đ</sup>
+                    </>
+                  )}
+                </p>
               </div>
               <div className="payment__total-price-product">
                 <p className="payment__title">Tổng thanh toán:</p>
                 <p className="payment__total">
-                  ₫{sumProduct ? numberWithCommas(sumProduct + 32700) : 0}
+                  {sumProduct ? (
+                    user?.addressWallet ? (
+                      <>
+                        {convertPriceToToken(sumProduct + feeService)}
+                        <Avatar
+                          size={"small"}
+                          width="11%"
+                          src="https://pragmaticintegrator.files.wordpress.com/2017/10/ethereum-logo.png?w=848"
+                        />
+                      </>
+                    ) : (
+                      <>
+                        {numberWithCommas(sumProduct + feeService)}
+                        <sup> đ</sup>
+                      </>
+                    )
+                  ) : (
+                    0
+                  )}
                 </p>
               </div>
               <Button
